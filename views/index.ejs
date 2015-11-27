@@ -1,0 +1,177 @@
+<html>
+<head>
+<script src="/javascripts/calculator.js"></script>
+</head>
+<body>
+<h1>
+    <p>add prop</p>
+    <button onclick='tstnew()'>tstnew</button> <button onclick='tstDbus()'>tstDbus</button>
+    <br><br><button onclick='tstwindow()'>tstwindow</button> 
+    <br><br><button onclick='tstseed()'>tstseedSoup</button> <button onclick='tstseedgtk()'>tstseedgtk</button> <button onclick='tstcal()'>tstcal</button><button onclick='tstseedprint()'>tstseedprint</button>
+    <br><br><button onclick='tstOrigNode()'>tstOrigNode</button> <button onclick="testorigOpen()">testorigOpen</button>
+    <br><br><button onclick='tstCb()'>tstCb2</button> <button onclick='tstOrigCb()'>tstOrigCb5</button>
+    <div id="test" style="width:1px;height:17px;background:#0f0;">15%</div>
+    <br><input type="button" value="Run" onclick="runanimation()"/> <button onclick="testwebdb()">testwebdb</button>
+    <br><button onclick="addevent()">addEventListener</button><button id='ideventbtn'>test orig event cb</button>
+
+    <script>
+        function tstseedprint(){
+            print("output by seed print function");
+        }
+        function tstcal(){
+            calculatormain();
+            //tstinclude();
+        }
+        function addevent(){
+            var eventbtn = document.querySelector("#ideventbtn");
+            eventbtn.addEventListener("click",dbcallback,false);
+        }
+        function dbcallback(){
+            console.log("dbcallback");
+            alert("dbcallback");
+        }
+        function testwebdb(){
+            var db = openDatabase('testDB', '1.0', 'Test DB', 2 * 1024 * 1024,dbcallback);
+        }
+        var start = null;
+        var ele = document.getElementById("test");
+        var progress = 0;
+
+        function step(timestamp) {
+            progress += 1;
+            ele.style.width = progress + "%";
+            ele.innerHTML=progress + "%";
+            if (progress < 100) {
+                requestAnimationFrame(step);
+            }
+        }
+        function runanimation(){
+            progress=0;
+            requestAnimationFrame(step);
+        }
+
+        var i=1;
+        function jsccallback(){
+            alert("h,ok in jsc callback, global i="+i);
+        }
+        function testorigOpen(){
+            var fs=require('fs');
+            fs.open('/home/sin/tmp/webjs','r',callback);
+        }
+        function tstseedcal(){
+
+        }
+        function tstseedgtk(){
+            try{
+            Gtk = imports.gi.Gtk;
+            Gtk.init (null, null);
+
+            var window = new Gtk.Window();
+            var view = new Gtk.TextView();
+            var buffer = view.buffer;
+
+            window.signal.hide.connect(Gtk.main_quit);
+
+            var ret_begin = {}
+
+            buffer.get_start_iter (ret_begin);
+
+            buffer.insert(ret_begin.iter, "Hello GtkTextView world.", -1);
+
+            window.add(view);
+            window.show_all();
+            window.resize(300, 300);   
+
+            Gtk.main();
+
+            }catch(e){
+                alert("seedgtk e="+e.message);
+            }
+        }
+
+        function tstseed(){
+            var url="http://www.baidu.com";
+            try{
+                Soup = imports.gi.Soup;
+
+                var session = new Soup.SessionSync();
+
+                var uri = new Soup.URI.c_new(url);
+                var request = new Soup.Message({method:"GET", uri:uri});
+
+                var status = session.send_message(request);
+
+                print("soup get "+url+" status="+status);
+
+            }catch(e){
+                alert("seed e="+e.message);
+            }
+        }
+        function tstCb(){
+            try{
+                var np=window.require('fs');
+                np.write('file',jsccallback);
+                //np.write('file',function(){alert('ok in callback');});
+            }catch(e){
+                alert("e="+e.message);
+            }
+        }
+        function tstOrigCb(){
+            var fs=require('fs');
+            fs.writeFile('/home/sin/tmp/webjs','by tstOrigCb',callback);
+        }
+        function tstDbus(){
+                console.log("in tstDbus");
+            try{
+                var DBus = require('dbus');
+                var dbus = new DBus();
+                var service = dbus.registerService('session', 'nodejs.dbus.launch');
+                var obj = service.createObject('/nodejs/dbus/launch');
+                var iface = obj.createInterface('nodejs.dbus.launch');
+                alert("ok");
+                console.log("ok dbus");
+                iface.addMethod('setResult',{},function(){
+                });
+            }catch(e){
+                alert("e="+e.message);
+            }
+        }
+        function tstnew(){
+            try{
+                var j=5;
+                var np=window.require('fs');
+                var a = new np(j);
+            }catch(e){
+                alert("e="+e.message);
+            }
+
+        }
+        function tstrequire(){
+            var np=window.require('fs');
+            //console.log("require obj="+np+",np.hello="+np.hello);
+            try{
+            np.hello();
+            //var res=np.write;
+            var res=np.write('file');
+            alert("np.write(file) res="+res);
+            }catch(e){
+                alert("e="+e.message);
+            }
+            if(true){
+                np.tstval=1;
+                //np.hello();
+                //console.log("np.tstval="+np.tstval);
+            }
+        }
+        function tstwindow(){
+            window.focus();
+            alert("focused");
+        }
+        function tstOrigNode(){
+            var fs=require('fs');
+            fs.writeFile('/home/sin/tmp/webjs','by orig nodejs',callback);
+        }
+    </script>
+</h1>
+</body>
+</html>
