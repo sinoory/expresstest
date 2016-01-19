@@ -1,25 +1,116 @@
 <html>
 <head>
 <script src="/javascripts/calculator.js"></script>
+<script src="/javascripts/clock.js"></script>
+<script src="/javascripts/jquery-2.0.0.min.js"></script>
 </head>
 <body>
 <h1>
     <p>add prop</p>
-    <button onclick='tstnew()'>tstnew</button> <button onclick='tstDbus()'>tstDbus</button>
-    <br><br><button onclick='tstwindow()'>tstwindow</button> 
+    <button onclick='tstnew()'>tstnew</button> <button onclick='tstDbus()'>tstDbus</button><button onclick='tstprocess()'>tstprocess</button>
+    <button onclick='tstmongo()'>tstmongo</button>
+    <button onclick='tstnodecanvas()'>tstnodecanvas</button>
+    <img id='idnodecanvas' style='width:200px;height:200px'></img>
+    <br></br><button onclick='tstredis()'>tstredis</button>
+    <br><br><button onclick='tstwindow()'>tstwindowX</button> 
     <br><br><button onclick='tstseed()'>tstseedSoup</button> <button onclick='tstseedgtk()'>tstseedgtk</button> <button onclick='tstcal()'>tstcal</button><button onclick='tstseedprint()'>tstseedprint</button>
     <br><br><button onclick='tstOrigNode()'>tstOrigNode</button> <button onclick="testorigOpen()">testorigOpen</button>
-    <br><br><button onclick='tstCb()'>tstCb2</button> <button onclick='tstOrigCb()'>tstOrigCb5</button>
+    <br><br><button onclick='tstCb()'>tstCb2</button> <button onclick='tstOrigCb()'>tstOrigCb5</button><button onclick='tstNestedCb()'>tstNestedCb</button>
     <div id="test" style="width:1px;height:17px;background:#0f0;">15%</div>
     <br><input type="button" value="Run" onclick="runanimation()"/> <button onclick="testwebdb()">testwebdb</button>
     <br><button onclick="addevent()">addEventListener</button><button id='ideventbtn'>test orig event cb</button>
 
     <script>
+        function tstredis(){
+            function mprint(msg){
+                if(typeof(print)!="undefined"){
+                    print(msg);
+                }else{
+                    console.log(msg);
+                }
+            }
+
+            function opredis(){
+                print("=========opredis in=======")
+                var redis = require("redis"),
+                client = redis.createClient();
+
+                client.hmset('sessionid', { username: 'kris', password: 'password' }, function(err) {
+                    print('============redis err====='+err)
+                })
+
+                client.hgetall('sessionid', function(err, object) {
+                    alert('redis get res='+object)
+                })
+            }
+            opredis();
+
+
+        }
+        function tstnodecanvas(){
+            try{
+                var data=showdata();
+                $("#idnodecanvas").attr("src",data);
+                //calculatormain();
+            }catch(e){
+                alert(e);
+            }
+        }
+        function tstmongo(){
+            try{
+                 mongodb = require('mongodb');
+                print("typeof mongodb="+typeof(mongodb));
+                var ff=typeof(mongodb.Server);
+                 ff=typeof(mongodb.Server);
+                gmongo=mongodb;
+                print("typeof mongodb.Server="+ff);
+                 server = new mongodb.Server('localhost',27017,{auto_reconnect:true});
+                 db = new mongodb.Db('mydb',server,{safe:true});
+                db.open(function(err,db){
+                    if(!err){ 
+                        db.collection('mycoll',{safe:true},function(err,collection){
+                            var tmp1 = {title:'hello',number:1};
+                            collection.insert(tmp1,{safe:true},function(err,result){
+                                if(err){
+                                    print("db insert err="+err);
+                                    return;
+                                }
+                                alert("db insert ok,res="+result);
+                            });
+                        }); 
+                    }else{
+                        print("db open err=",err);
+                    } 
+                });
+            }catch(e){
+                alert(" e="+e);
+            }
+        }
+        function tstprocess(){
+            var res="process.arch="+process.arch;
+            res+=("\nprocess.stderr.fd="+process.stderr.fd);
+            res+=("\nprocess.getuid()="+process.getuid());
+            res+=("\n");
+            alert(res);
+        }
+        function tstNestedCb(){
+            var fs=require('fs');
+            fs.open('/home/sin/tmp/webjs','r',function(e,fd){
+                alert('ok in open callback,fd='+fd);
+                fs.fstat(fd,function(){
+                    alert('ok in nested fstat callback');
+                });
+            });
+        }
         function tstseedprint(){
             print("output by seed print function");
         }
         function tstcal(){
-            calculatormain();
+            try{
+                calculatormain();
+            }catch(e){
+                alert("tstcal e="+e);
+            }
             //tstinclude();
         }
         function addevent(){
@@ -52,11 +143,11 @@
 
         var i=1;
         function jsccallback(){
-            alert("h,ok in jsc callback, global i="+i);
+            alert("h,ok in jsc callback, global ii="+i);
         }
         function testorigOpen(){
             var fs=require('fs');
-            fs.open('/home/sin/tmp/webjs','r',callback);
+            fs.open('/home/sin/tmp/webjs','r',jsccallback);
         }
         function tstseedcal(){
 
@@ -110,7 +201,11 @@
         function tstCb(){
             try{
                 var np=window.require('fs');
-                np.write('file',jsccallback);
+                np.writeFile('/home/sin/tmp/webjs',"write from jsc",jsccallback);
+
+                var wf=np.writeFile;
+                //print("typeof(wf)="+typeof(wf));
+                //wf('/home/sin/tmp/webjs',"write from jsc",jsccallback);
                 //np.write('file',function(){alert('ok in callback');});
             }catch(e){
                 alert("e="+e.message);
@@ -120,17 +215,26 @@
             var fs=require('fs');
             fs.writeFile('/home/sin/tmp/webjs','by tstOrigCb',callback);
         }
+        giff=null;
+        giface=null;
         function tstDbus(){
                 console.log("in tstDbus");
             try{
                 var DBus = require('dbus');
                 var dbus = new DBus();
-                var service = dbus.registerService('session', 'nodejs.dbus.launch');
-                var obj = service.createObject('/nodejs/dbus/launch');
-                var iface = obj.createInterface('nodejs.dbus.launch');
-                alert("ok");
-                console.log("ok dbus");
-                iface.addMethod('setResult',{},function(){
+                var bus = dbus.getBus('session');
+                bus.getInterface('nodejs.dbus.ExampleServiceA', 
+                                 '/nodejs/dbus/ExampleServiceA', 
+                                 'nodejs.dbus.ExampleServiceA.Interface1', 
+                                function(err, iface) {
+                                    print("dbus cb Hello calling 1");
+                                    giface=iface;
+                                    iface.Hello['timeout']=1000;
+                                    iface.Hello['finish']=function(){
+                                        alert("ok iface.Hello exe finished");
+                                    }
+                                    print("=====dbus cb Hello calling iface.Hello.timeout="+iface.Hello.timeout);
+                                    iface.Hello();
                 });
             }catch(e){
                 alert("e="+e.message);
@@ -140,7 +244,6 @@
             try{
                 var j=5;
                 var np=window.require('fs');
-                var a = new np(j);
             }catch(e){
                 alert("e="+e.message);
             }
@@ -164,8 +267,18 @@
             }
         }
         function tstwindow(){
-            window.focus();
-            alert("focused");
+            window.documentX='asdfa';
+            print("finish tstwindow ");
+            /*
+            print("type window.nothing = "+typeof(window.nothing));
+            window.nothing='kkk';
+            print("window.nothing="+window.nothing);
+            window['nothingB']='bbb';
+            window.tmpc=function(){print("ok window.tmpc")};
+            window.tmpc['pc']='pc';
+            print("window.tmpc added prop pc");
+            window.tmpc();
+            */
         }
         function tstOrigNode(){
             var fs=require('fs');

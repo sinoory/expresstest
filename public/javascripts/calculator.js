@@ -1,16 +1,18 @@
 //#!/usr/bin/env seed
 
 function calculatormain(){
-
+print("calculatormain in >>>");
 Gdk = imports.gi.Gdk;
 Gtk = imports.gi.Gtk;
 GLib = imports.gi.GLib;
 
 Gtk.init(Seed.argv);
 
+print("calculatormain1 Gtk init ok");
 var calc_val = "";
 
 function update_display(){
+    print("calculatormain2 update_display label="+label);
     label.set_markup("<span size='30000'>" + calc_val + "</span>");
 
     if(calc_val === ""){
@@ -120,14 +122,21 @@ function create_buttons(){
 
 var window = new Gtk.Window({title: "Calculator", resizable: false});
 
+print("calculatormain2 newed GtkWindow");
+print(typeof window)
 window.resize(250, 250);
+print("calculatormain3");
 window.signal.hide.connect(Gtk.main_quit);
+print("calculatormain4");
 window.opacity = 0.95;
 
 var label = new Gtk.Label({label: ""});
+print("calculatormain5");
 label.set_alignment(1,0);
+print("calculatormain6");
 update_display();
 
+print("calculatormain3 update_display end");
 var mainvbox = new Gtk.VBox();
 mainvbox.pack_start(label, false, true, 1);
 mainvbox.pack_start(new Gtk.HSeparator(), false, true, 5);
@@ -135,9 +144,13 @@ mainvbox.pack_start(create_buttons(), true, true, 2);
 
 window.add(mainvbox);
 window.show_all();
+print("calculatormain next Gtk.main");
 Gtk.main();
+print("calculatormain <<<");
 }
 
 function tstinclude(){
     alert("tstinclude");
 }
+
+//calculatormain();
