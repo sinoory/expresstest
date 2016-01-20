@@ -26,6 +26,7 @@ app.use('/', routes);
 app.use('/users', users);
 //app.use('/dojo', require('./routes/djdm/slide/dojo'));
 app.use('/djdm/slide/dojo', require('./routes/djdm/slide/dojo'));
+app.use('/djdm/gauge', require('./routes/djdm/gauge/gauge'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
